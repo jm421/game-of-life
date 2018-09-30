@@ -99,7 +99,6 @@ class GameOfLife():
             row_id += 1
 
         self.draw_grid()
-        self.run_rules()            # idk why this needs to be here! (but it does)
 
     def run_rules(self):
         """
@@ -138,7 +137,7 @@ class GameOfLife():
 
         self.cells = temp
 
-    def get_cell_value(self, row, col):
+    def get_cell_value(self, col, row):
         """
         Searches "self.cells" for a cell at the specified row and column indices. If found, it will return the cell
         state (0 or 1), else it returns 0.
