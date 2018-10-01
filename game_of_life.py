@@ -28,10 +28,10 @@ class GameOfLife:
 
     def generate_cells(self):
         """
-        Generates a random 2D array (list of lists) based on 'self.seed', with each element being either 0 (dead)
-        or 1 (alive). Each list corresponds to each row of the grid, and values in rows corresponds to the state
-        of the cells on that row (with indexes as the column number).
-        :return: 2D array of cell states.
+        Generates a random 2D array (list of lists) of Cell objects, based on 'self.seed'. Each list 
+        corresponds to each row of the grid, and Cell objects in rows corresponds to the cells on 
+        that row (with indexes as the column number).
+        :return: 2D array of Cell objects.
         """
         for row in range(0, self.total_v_grids):            # for row in number of rows
 
@@ -61,7 +61,7 @@ class GameOfLife:
 
     def draw_cell(self, colour, x0, y0, x1, y1, x2, y2, x3, y3):
         """
-        Draws a living cell (green). Takes an RGB tuple (colour) and four coordinates as parameters for where the square
+        Draws a cell. Takes an RGB tuple (colour) and four coordinates as parameters for where the square
         should be drawn.
         :return: None.
         """
@@ -79,6 +79,12 @@ class GameOfLife:
         """
         The main draw method. When called, it draws the values of self.cells accordingly, and then
         draws a corresponding grid.
+        
+        Newborn => Green
+        Alive => Grey
+        Dying => Red
+        Dead => Black
+        
         :return: None
         """
 
@@ -116,8 +122,7 @@ class GameOfLife:
 
     def run_rules(self):
         """
-        Applies GoL rules to values in "self.cells", storing them in a temporary 2D array. Then assigns the temporary
-        (updated) array to "self.cells".
+        Applies GoL rules to Cell objects in "self.cells".
         :return: None.
         """
         temp = []
@@ -153,8 +158,8 @@ class GameOfLife:
 
     def get_cell_value(self, col, row):
         """
-        Searches "self.cells" for a cell at the specified row and column indices. If found, it will return the cell
-        state (0 or 1), else it returns 0.
+        Searches "self.cells" for a Cell object at the specified row and column indices. If found, it will return
+        the cell state (0 or 1), else it returns 0.
         :param row: Row index (y-coordinate)
         :param col: Column index (x-coordinate)
         :return: Cell state (0 or 1)
