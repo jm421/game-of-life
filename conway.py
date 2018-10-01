@@ -2,7 +2,7 @@ import pyglet
 import game_of_life
 
 
-class Window(pyglet.window.Window):
+class GoL_Window(pyglet.window.Window):
     def __init__(self, width, height, cell_size, seed):
         super().__init__(width, height)      # calls the inherited constructor
 
@@ -10,7 +10,7 @@ class Window(pyglet.window.Window):
         self.gameOfLife = game_of_life.GameOfLife(width, height, cell_size, seed)
 
         # scheduling updated states
-        pyglet.clock.schedule_interval(self.update, 1.0/5.0)       # 5fps
+        pyglet.clock.schedule_interval(self.update, 1.0/20.0)       # 20fps
 
     # overriding
     def on_draw(self):
@@ -22,5 +22,5 @@ class Window(pyglet.window.Window):
 
 
 if __name__ == "__main__":
-    window = Window(600, 600, 20, 0.7)
+    window = GoL_Window(1280, 1080, 15, 0.6)
     pyglet.app.run()
