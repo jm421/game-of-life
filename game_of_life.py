@@ -2,7 +2,19 @@ import pyglet
 import random
 
 
-class GameOfLife():
+class Cell:
+    def __init__(self, state, previous_state):
+        self.state = state
+        self.previous_state = previous_state
+
+    def get_state(self):
+        return self.state
+
+    def get_prev_state(self):
+        return self.previous_state
+
+
+class GameOfLife:
     def __init__(self, window_width, window_height, cell_size, seed):
         self.window_width = window_width
         self.window_height = window_height
@@ -28,11 +40,10 @@ class GameOfLife():
             for col in range(0, self.total_h_grids):        # for col in number of cols
 
                 r = random.random()                         # random float 0<=r<1
-
                 if r < self.seed:
-                    self.cells[row].append(1)       # cell lives
+                    self.cells[row].append(Cell(1, 0))       # cell lives
                 else:
-                    self.cells[row].append(0)       # cell dies
+                    self.cells[row].append(Cell(0, 0))       # cell dies
 
     def draw_grid(self):
         """
@@ -48,9 +59,9 @@ class GameOfLife():
         for y in range(self.cell_size, self.window_height, self.cell_size):
             pyglet.graphics.draw_indexed(2, pyglet.gl.GL_LINE_STRIP, [0, 1], ("v2i", (0, y, self.window_width, y)))
 
-    def draw_cell(self, x0, y0, x1, y1, x2, y2, x3, y3):
+    def draw_cell(self, colour, x0, y0, x1, y1, x2, y2, x3, y3):
         """
-        Draws a living cell (green). Takes four coordinates as parameters for where the square
+        Draws a living cell (green). Takes an RGB tuple (colour) and four coordinates as parameters for where the square
         should be drawn.
         :return: None.
         """
@@ -62,20 +73,7 @@ class GameOfLife():
                                                                                      x2, y2,
                                                                                      x3, y3)),
                                                                                     ("c3B",
-                                                                                     (0, 100, 0) * 4))
-
-    def kill_cell(self, x1, y1, x2, y2, x3, y3, x4, y4):
-        """
-        Draws a dead cell (black). Used only to draw over (kill) living cells, as grid is black by default. Takes four
-        coordinates as parameters for where the square should be drawn.
-        :return: None
-        """
-        # drawing two triangles, first at (0, 1, 2) then at (1, 2, 3) and colouring both black
-        pyglet.graphics.draw_indexed(4, pyglet.gl.GL_TRIANGLES, [0, 1, 2, 1, 2, 3], ("v2i", (x1, y1,
-                                                                                             x2, y2,
-                                                                                             x3, y3,
-                                                                                             x4, y4)),
-                                                                                    ("c3B", (0, 0, 0) * 4))
+                                                                                     colour * 4))
 
     def draw(self):
         """
@@ -87,11 +85,27 @@ class GameOfLife():
         row_id = 0
         for row in self.cells:
             grid_id = 0
-            for state in row:
+            for cell in row:
                 grid_id += 1
                 size = grid_id * self.cell_size
-                if state == 1:
-                    self.draw_cell(size - self.cell_size, self.cell_size * row_id,
+
+                if cell.get_state() == 1 and cell.get_prev_state() == 0:
+                    self.draw_cell((0, 100, 0),
+                                   size - self.cell_size, self.cell_size * row_id,
+                                   size - self.cell_size, self.cell_size * (row_id + 1),
+                                   size, self.cell_size * row_id,
+                                   size, self.cell_size * (row_id + 1))
+
+                elif cell.get_state() == 1 and cell.get_prev_state() == 1:
+                    self.draw_cell((125, 125, 125),
+                                   size - self.cell_size, self.cell_size * row_id,
+                                   size - self.cell_size, self.cell_size * (row_id + 1),
+                                   size, self.cell_size * row_id,
+                                   size, self.cell_size * (row_id + 1))
+
+                elif cell.get_state() == 0 and cell.get_prev_state() == 1:
+                    self.draw_cell((100, 0, 0),
+                                   size - self.cell_size, self.cell_size * row_id,
                                    size - self.cell_size, self.cell_size * (row_id + 1),
                                    size, self.cell_size * row_id,
                                    size, self.cell_size * (row_id + 1))
@@ -125,15 +139,15 @@ class GameOfLife():
 
                 # reproduction
                 if self.get_cell_value(col, row) == 0 and total_neighbours == 3:
-                    temp[row].append(1)
+                    temp[row].append(Cell(1, 0))
 
                 # stasis
                 elif self.get_cell_value(col, row) == 1 and total_neighbours in [2, 3]:
-                    temp[row].append(1)
+                    temp[row].append(Cell(1, 1))
 
                 # else the cell must be dead
                 else:
-                    temp[row].append(0)
+                    temp[row].append(Cell(0, self.get_cell_value(col, row)))
 
         self.cells = temp
 
@@ -147,6 +161,6 @@ class GameOfLife():
         """
 
         if 0 <= row < self.total_v_grids and 0 <= col < self.total_h_grids:     # if its valid (on the grid), get state
-            return self.cells[row][col]
+            return self.cells[row][col].get_state()
 
         return 0        # else its outside the grid, call it dead
